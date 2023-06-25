@@ -68,9 +68,9 @@ func NewClient(config mysql.MysqlConfig) (*MySql, dbx.Dbx) {
 		_logger.Info(fmt.Sprintf("Mysql client connection:: %s", config.Json()))
 		_logger.Info(fmt.Sprintf("Connected successfully to mysql:: %s (database: %s)", Dsn(config), config.Database))
 	}
+	instance = NewMySql().SetConn(client)
 	pid := os.Getpid()
 	s.SetConnected(true).SetMessage("Connection established").SetPid(pid).SetNewInstance(true)
-	instance.SetConn(client)
 	return instance, *s
 }
 
