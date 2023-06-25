@@ -11,6 +11,7 @@ import (
 	"github.com/sivaosorg/govm/dbx"
 	"github.com/sivaosorg/govm/logger"
 	"github.com/sivaosorg/govm/mysql"
+	"github.com/sivaosorg/govm/utils"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -28,6 +29,20 @@ func NewMySql() *MySql {
 func (m *MySql) SetConn(value *sql.DB) *MySql {
 	m.conn = value
 	return m
+}
+
+func (m *MySql) SetConfig(value mysql.MysqlConfig) *MySql {
+	m.Config = value
+	return m
+}
+
+func (m *MySql) SetState(value dbx.Dbx) *MySql {
+	m.State = value
+	return m
+}
+
+func (m *MySql) Json() string {
+	return utils.ToJson(m)
 }
 
 func NewClient(config mysql.MysqlConfig) (*MySql, dbx.Dbx) {
@@ -68,9 +83,9 @@ func NewClient(config mysql.MysqlConfig) (*MySql, dbx.Dbx) {
 		_logger.Info(fmt.Sprintf("Mysql client connection:: %s", config.Json()))
 		_logger.Info(fmt.Sprintf("Connected successfully to mysql:: %s (database: %s)", Dsn(config), config.Database))
 	}
-	instance = NewMySql().SetConn(client)
 	pid := os.Getpid()
 	s.SetConnected(true).SetMessage("Connection established").SetPid(pid).SetNewInstance(true)
+	instance = NewMySql().SetConn(client).SetConfig(config).SetState(*s)
 	return instance, *s
 }
 
