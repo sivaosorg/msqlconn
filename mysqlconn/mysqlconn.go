@@ -74,7 +74,9 @@ func NewClient(config mysql.MysqlConfig) (*MySql, dbx.Dbx) {
 	client.SetMaxOpenConns(config.MaxOpenConn)
 	client.SetMaxIdleConns(config.MaxIdleConn)
 	client.SetConnMaxLifetime(time.Duration(time.Duration(config.MaxLifeTimeMinutesConn).Minutes()))
-	err = client.PingContext(context.Background())
+	ctx, cancel := context.WithTimeout(context.Background(), config.Timeout)
+	defer cancel()
+	err = client.PingContext(ctx)
 	if err != nil {
 		s.SetConnected(false).SetError(err).SetMessage(err.Error())
 		return &MySql{}, *s
