@@ -45,6 +45,14 @@ func (m *MySql) Json() string {
 	return utils.ToJson(m)
 }
 
+func (m *MySql) GetConn() *sql.DB {
+	return m.conn
+}
+
+func (m *MySql) Close() error {
+	return m.conn.Close()
+}
+
 func NewClient(config mysql.MysqlConfig) (*MySql, dbx.Dbx) {
 	s := dbx.NewDbx().SetDatabase(config.Database)
 	if !config.IsEnabled {
