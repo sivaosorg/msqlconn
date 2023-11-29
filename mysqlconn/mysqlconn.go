@@ -59,7 +59,8 @@ func NewClient(config mysql.MysqlConfig) (*MySql, dbx.Dbx) {
 		s.SetConnected(false).
 			SetMessage("Mysql unavailable").
 			SetError(fmt.Errorf(s.Message))
-		return &MySql{}, *s
+		instance = NewMySql().SetState(*s)
+		return instance, *s
 	}
 	if instance != nil {
 		s.SetConnected(true)
@@ -68,7 +69,8 @@ func NewClient(config mysql.MysqlConfig) (*MySql, dbx.Dbx) {
 	client, err := sql.Open(common.EntryKeyMysql, Dsn(config))
 	if err != nil {
 		s.SetConnected(false).SetError(err).SetMessage(err.Error())
-		return &MySql{}, *s
+		instance = NewMySql().SetState(*s)
+		return instance, *s
 	}
 	if config.MaxOpenConn <= 0 {
 		config.MaxOpenConn = 10
@@ -87,14 +89,15 @@ func NewClient(config mysql.MysqlConfig) (*MySql, dbx.Dbx) {
 	err = client.PingContext(ctx)
 	if err != nil {
 		s.SetConnected(false).SetError(err).SetMessage(err.Error())
-		return &MySql{}, *s
+		instance = NewMySql().SetState(*s)
+		return instance, *s
 	}
 	if config.DebugMode {
 		_logger.Info(fmt.Sprintf("Mysql client connection:: %s", config.Json()))
 		_logger.Info(fmt.Sprintf("Connected successfully to mysql:: %s (database: %s)", Dsn(config), config.Database))
 	}
 	pid := os.Getpid()
-	s.SetConnected(true).SetMessage("Connection established").SetPid(pid).SetNewInstance(true)
+	s.SetConnected(true).SetMessage("Connection successfully").SetPid(pid).SetNewInstance(true)
 	instance = NewMySql().SetConn(client).SetConfig(config).SetState(*s)
 	return instance, *s
 }
