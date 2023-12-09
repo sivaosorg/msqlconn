@@ -17,8 +17,7 @@ import (
 )
 
 var (
-	instance *MySql
-	_logger  = logger.NewLogger()
+	_logger = logger.NewLogger()
 )
 
 func NewMySql() *MySql {
@@ -54,22 +53,19 @@ func (m *MySql) Close() error {
 }
 
 func NewClient(config mysql.MysqlConfig) (*MySql, dbx.Dbx) {
+	instance := NewMySql()
 	s := dbx.NewDbx().SetDatabase(config.Database)
 	if !config.IsEnabled {
 		s.SetConnected(false).
 			SetMessage("Mysql unavailable").
 			SetError(fmt.Errorf(s.Message))
-		instance = NewMySql().SetState(*s)
-		return instance, *s
-	}
-	if instance != nil {
-		s.SetConnected(true)
+		instance.SetState(*s)
 		return instance, *s
 	}
 	client, err := sql.Open(common.EntryKeyMysql, Dsn(config))
 	if err != nil {
 		s.SetConnected(false).SetError(err).SetMessage(err.Error())
-		instance = NewMySql().SetState(*s)
+		instance.SetState(*s)
 		return instance, *s
 	}
 	if config.MaxOpenConn <= 0 {
@@ -89,7 +85,7 @@ func NewClient(config mysql.MysqlConfig) (*MySql, dbx.Dbx) {
 	err = client.PingContext(ctx)
 	if err != nil {
 		s.SetConnected(false).SetError(err).SetMessage(err.Error())
-		instance = NewMySql().SetState(*s)
+		instance.SetState(*s)
 		return instance, *s
 	}
 	if config.DebugMode {
@@ -97,8 +93,8 @@ func NewClient(config mysql.MysqlConfig) (*MySql, dbx.Dbx) {
 		_logger.Info(fmt.Sprintf("Connected successfully to mysql:: %s (database: %s)", Dsn(config), config.Database))
 	}
 	pid := os.Getpid()
-	s.SetConnected(true).SetMessage("Connection successfully").SetPid(pid).SetNewInstance(true)
-	instance = NewMySql().SetConn(client).SetConfig(config).SetState(*s)
+	s.SetConnected(true).SetMessage("Connected successfully").SetPid(pid).SetNewInstance(true)
+	instance.SetConn(client).SetConfig(config).SetState(*s)
 	return instance, *s
 }
 
