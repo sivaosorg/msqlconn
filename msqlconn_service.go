@@ -1,4 +1,4 @@
-package mysqlconn
+package msqlconn
 
 import (
 	"context"
@@ -12,22 +12,22 @@ type MysqlService interface {
 	ExecuteBatchWithTransaction(statements []string) error
 }
 
-type mysqlServiceImpl struct {
+type msqlServiceImpl struct {
 	mysqlConn *MySql
 }
 
 func NewMysqlService(mysqlConn *MySql) MysqlService {
-	s := &mysqlServiceImpl{
+	s := &msqlServiceImpl{
 		mysqlConn: mysqlConn,
 	}
 	return s
 }
 
-func (m *mysqlServiceImpl) CreateDatabase(ctx context.Context) (int64, error) {
+func (m *msqlServiceImpl) CreateDatabase(ctx context.Context) (int64, error) {
 	return m.CreateDatabaseWith(ctx, m.mysqlConn.Config.Database)
 }
 
-func (m *mysqlServiceImpl) CreateDatabaseWith(ctx context.Context, db string) (int64, error) {
+func (m *msqlServiceImpl) CreateDatabaseWith(ctx context.Context, db string) (int64, error) {
 	if !m.mysqlConn.State.IsConnected {
 		return -1, m.mysqlConn.State.Error
 	}
@@ -39,7 +39,7 @@ func (m *mysqlServiceImpl) CreateDatabaseWith(ctx context.Context, db string) (i
 	return no, err
 }
 
-func (p *mysqlServiceImpl) ExecuteBatch(statements []string) error {
+func (p *msqlServiceImpl) ExecuteBatch(statements []string) error {
 	if len(statements) == 0 {
 		return fmt.Errorf("missing statements")
 	}
@@ -66,7 +66,7 @@ func (p *mysqlServiceImpl) ExecuteBatch(statements []string) error {
 	return nil
 }
 
-func (p *mysqlServiceImpl) ExecuteBatchWithTransaction(statements []string) error {
+func (p *msqlServiceImpl) ExecuteBatchWithTransaction(statements []string) error {
 	tx, err := p.mysqlConn.conn.Begin()
 	if err != nil {
 		return err

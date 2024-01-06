@@ -1,4 +1,4 @@
-module github.com/sivaosorg/mysqlconn
+module github.com/sivaosorg/msqlconn
 
 go 1.20
 
